@@ -1,8 +1,13 @@
+from parsing import get_records
 # Returns 
 def k_means(k, dataset):
     records = dataset.records 
     centers = records[:k]
-    changed = True
+    changed = False
     while changed: 
-        for 
-    pass
+        pass
+
+def main():
+    get_records('iris.arff')
+
+main()
