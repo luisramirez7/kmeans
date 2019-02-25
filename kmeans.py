@@ -105,17 +105,8 @@ def main():
     # Membership change initialization
     # for comparison in while loop
     membership_change = float('inf')
-    # Create a placeholder list
-    # for the number of clusters to be
-    # used
-    clusters = k * [0]
-    # Placeholder objects for the first k centroids of
-    # clusters to be compared in the epsilon check
-    # This uses a list comprehension i.e.,
-    # 4 * [float('inf')] will produce a 2D array
-    # with each element being 4 infinity elements
-    # Sample K centroids at random from the dataframe
-    # old_centers = [data.shape[1] * [float('inf')] for cluster in clusters]
+    
+    # Sample first k random centroid centers
     old_centers = data.sample(n=k).values
 
     # Instantiate while loop break counter
@@ -125,6 +116,7 @@ def main():
     # i.e., the change in clustering is minimal
     # run the k-means algorithm
     start_time = time.time()
+
     while(x < number_of_iterations and membership_change > epsilon):
         new_centers = k_means(k, data, old_centers)
         new_centers = np.array(new_centers)
@@ -132,12 +124,14 @@ def main():
         value = new_centers - old_centers
         membership_change = np.sum((value)**2)
         old_centers = new_centers
+
         print("Iteration: {}".format(x))
         for index, cluster_ in enumerate(old_centers):
-            print("Cluster {}".format(index), old_centers[index])
+            print("Cluster {} centroid at".format(index), old_centers[index])
 
         print("Membership change since last iteration: {} \n".format(
             membership_change))
+
         x += 1
 
     time_taken = time.time() - start_time
