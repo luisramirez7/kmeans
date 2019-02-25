@@ -3,6 +3,7 @@ import sys
 import random
 import pandas as pd
 import numpy as np
+
 # Take distance measure of each transaction  
 def take_distance(centroid, record):
     # Instantite distance placeholder object
@@ -39,9 +40,10 @@ def k_means(k, dataset):
         values = take_distance(centroid, dataset.values)
         distances_to_centroids['Distance to Centroid_{}'.format(index)] = (values)
 
-
-    distances_to_centroids['closest_cluster'] = distances_to_centroids.min(axis=1)
-    
+    # Find the minimum distance value in the row
+    # and store as a series in the dataframe
+    distances_to_centroids['closest_cluster'] = distances_to_centroids.idxmin(axis=1)
+    print(distances_to_centroids)
     distances_and_iris = pd.concat([distances_to_centroids, dataset],axis=1,sort=False)
     
     changed = False
