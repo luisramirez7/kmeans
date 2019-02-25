@@ -38,7 +38,7 @@ def k_means(k, dataset):
     # i.e., Centroid 0 : distances from points to centroid
     for index, centroid in enumerate(centroids):
         values = take_distance(centroid, dataset.values)
-        distances_to_centroids['Distance to Centroid_{}'.format(index)] = (values)
+        distances_to_centroids[index] = (values)
 
     # Find the minimum distance value in the row
     # and store as a series in the dataframe
