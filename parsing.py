@@ -1,10 +1,20 @@
 from scipy.io import arff
-
+import pandas as pd
 # Load data using the scipy.io library to read arff files.
 def load_data(filename):
     data = arff.loadarff(filename)
     return data
 
+def load_pandas_data(filename):
+    data = arff.loadarff(filename)
+    df = pd.DataFrame(data[0])
+
+    # Drop categorical values
+    df = df.drop(columns=['class'])
+    
+    return df
+
+    
 # Function that converts the test dataset to all numeric attributes.  Class attributes are converted to a binary vector and added to the numeric vector.
 def convert_to_numeric_vector(datapoints):
     # binary vector to represent each class 
@@ -30,6 +40,7 @@ def convert_to_numeric_vector(datapoints):
         else:
             raise ValueError('Unrecognized class value.')
         numeric_datapoints.append(record)
+    
     return numeric_datapoints
 
 # function to take in the arff file and return the list of all records now in numeric form 

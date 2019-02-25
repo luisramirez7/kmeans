@@ -1,14 +1,26 @@
-from parsing import get_records
+from parsing import *
 import sys
 import random
-
+import pandas as pd
+import numpy as np
 # Take distance measure of each transaction  
-def take_distance():
-    return
+def take_distance(centroid, record):
+    
+    distance = record - centroid
+    return distance 
 
 def k_means(k, dataset):
-    records = dataset
-    random_centers = random.sample(records, k)
+    random_centers = dataset.sample(n=k)
+    
+    centroids = list(random_centers.values)
+    
+    # distance_frame = dataset.values - random_centers.values
+    for index, centroid in enumerate(centroids):
+        print("Centroid #_{}".format(index), "Center: {}".format(centroid))
+        distance_set = pd.DataFrame(dataset.values - centroid, columns=dataset.columns)
+        print("Cluster_{}".format(centroids), distance_set)
+    # distances_to_centroids = pd.DataFrame()
+    # distance = take_distance(random_centers[i], dataset)
 
     changed = False
     while changed:
@@ -16,6 +28,7 @@ def k_means(k, dataset):
 
 if __name__ == "__main__":
     data_location = 'iris.arff'
-    data = get_records(data_location)
+    data = load_pandas_data(data_location)
     k = int(sys.argv[1])
+    epsilon = float(sys.argv[2])
     k_means(k, data)
