@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 # Take distance measure of each transaction  
 def take_distance(centroid, record):
-    
     distance = record - centroid
     return distance 
 
@@ -17,8 +16,9 @@ def k_means(k, dataset):
     # distance_frame = dataset.values - random_centers.values
     for index, centroid in enumerate(centroids):
         print("Centroid #_{}".format(index), "Center: {}".format(centroid))
-        distance_set = pd.DataFrame(dataset.values - centroid, columns=dataset.columns)
-        print("Cluster_{}".format(centroids), distance_set)
+        values = take_distance(centroid, dataset.values)
+        distance_set = pd.DataFrame(values, columns=dataset.columns)
+        
     # distances_to_centroids = pd.DataFrame()
     # distance = take_distance(random_centers[i], dataset)
 
