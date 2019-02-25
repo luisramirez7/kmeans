@@ -6,6 +6,8 @@ import time
 import numpy as np
 
 # Take distance measure of each transaction
+
+
 def take_distance(centroid, record):
     # Instantite distance placeholder object
     # to store results of euclidean distance
@@ -19,6 +21,7 @@ def take_distance(centroid, record):
 
     # Return a series to be stored in distances frame
     return distance
+
 
 def k_means(k, dataset, old_centers):
     # Make a list of those centroids values
@@ -35,7 +38,6 @@ def k_means(k, dataset, old_centers):
     # the column that is repectably named
     # i.e., Centroid 0 : distances from points to centroid
     for index, centroid in enumerate(centroids):
-        print(index, centroid)
         values = take_distance(centroid, dataset.values)
         distances_to_centroids['Cluster_{}'.format(index)] = (values)
 
@@ -65,7 +67,7 @@ def k_means(k, dataset, old_centers):
     clusters_and_iris = pd.DataFrame(clusters_and_iris, columns=new_headers)
 
     # Assign the possible cluster membership classes
-    # to clusters so that we may query the clusters and iris 
+    # to clusters so that we may query the clusters and iris
     # dataframe to find new cluster centroids
     clusters = clusters_and_iris['closest_cluster'].value_counts(
     ).sort_index(axis=0)
@@ -79,7 +81,7 @@ def k_means(k, dataset, old_centers):
     for cluster in clusters.index:
         value_frame = clusters_and_iris.loc[clusters_and_iris['closest_cluster'] == cluster]
         value_frame = value_frame.drop(columns=['closest_cluster'])
-        # Enforce that the mean is taken row-wise 
+        # Enforce that the mean is taken row-wise
         # with parameter axis set to 'index'
         centroid = value_frame.mean(axis='index')
         # Add the point to the new centroids list
@@ -101,17 +103,17 @@ def main():
     # Number of iterations user input
     number_of_iterations = int(sys.argv[3])
     # Membership change initialization
-    # for comparison in while loop 
+    # for comparison in while loop
     membership_change = float('inf')
-    # Create a placeholder list 
-    # for the number of clusters to be 
+    # Create a placeholder list
+    # for the number of clusters to be
     # used
     clusters = k * [0]
     # Placeholder objects for the first k centroids of
     # clusters to be compared in the epsilon check
-    # This uses a list comprehension i.e., 
+    # This uses a list comprehension i.e.,
     # 4 * [float('inf')] will produce a 2D array
-    # with each element being 4 infinity elements 
+    # with each element being 4 infinity elements
     # Sample K centroids at random from the dataframe
     # old_centers = [data.shape[1] * [float('inf')] for cluster in clusters]
     old_centers = data.sample(n=k).values
@@ -125,18 +127,22 @@ def main():
     start_time = time.time()
     while(x < number_of_iterations and membership_change > epsilon):
         new_centers = k_means(k, data, old_centers)
-        new_centers =  np.array(new_centers)
+        new_centers = np.array(new_centers)
         old_centers = np.array(old_centers)
         value = new_centers - old_centers
         membership_change = np.sum((value)**2)
         old_centers = new_centers
         print("Iteration: {}".format(x))
-        
-        print(membership_change)
-        
+        for index, cluster_ in enumerate(old_centers):
+            print("Cluster {}".format(index), old_centers[index])
+
+        print("Membership change since last iteration: {} \n".format(
+            membership_change))
         x += 1
+
     time_taken = time.time() - start_time
     print("Total time taken: {}".format(time_taken) + "s")
+
 
 if __name__ == "__main__":
     main()
