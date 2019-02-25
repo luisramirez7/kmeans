@@ -22,7 +22,8 @@ def k_means(k, dataset):
         values = take_distance(centroid, dataset.values)
         df['Distance to Centroid_{}'.format(index)] = (values)
     
-    
+    df1 = pd.concat([df, dataset],axis=1,sort=False)
+    print(df1)
     # distances_to_centroids = pd.DataFrame()
     # distance = take_distance(random_centers[i], dataset)
 
