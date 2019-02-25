@@ -6,8 +6,6 @@ import time
 import numpy as np
 
 # Take distance measure of each transaction
-
-
 def take_distance(centroid, record):
     # Instantite distance placeholder object
     # to store results of euclidean distance
@@ -22,18 +20,11 @@ def take_distance(centroid, record):
     # Return a series to be stored in distances frame
     return distance
 
-
-def update_step(dataset):
-    return dataset
-
-
-def k_means(k, dataset, epsilon):
-    # Sample K centroids at random from the dataframe
-    random_centers = dataset.sample(n=k)
+def k_means(k, dataset, old_centers):
     # Make a list of those centroids values
     # i.e., k = 3, therefore centroids len = 3
     # vector elements
-    centroids = list(random_centers.values)
+    centroids = list(old_centers)
     # Instantiate an empty dataframe to store
     # the distances for each point from the starting
     # random centroids
@@ -44,6 +35,7 @@ def k_means(k, dataset, epsilon):
     # the column that is repectably named
     # i.e., Centroid 0 : distances from points to centroid
     for index, centroid in enumerate(centroids):
+        print(index, centroid)
         values = take_distance(centroid, dataset.values)
         distances_to_centroids['Cluster_{}'.format(index)] = (values)
 
@@ -62,29 +54,42 @@ def k_means(k, dataset, epsilon):
     headers = clusters_and_iris.columns
 
     # Strip irrelevant clusters from frame
+    # and store in new_headers
     new_headers = []
     for header in headers:
         if 'Cluster_' not in header:
             new_headers.append(header)
 
+    # Create a dataframe out of the newly
+    # stripped headers
     clusters_and_iris = pd.DataFrame(clusters_and_iris, columns=new_headers)
 
+    # Assign the possible cluster membership classes
+    # to clusters so that we may query the clusters and iris 
+    # dataframe to find new cluster centroids
     clusters = clusters_and_iris['closest_cluster'].value_counts(
     ).sort_index(axis=0)
 
+    # New placeholder list to hold new centroid calculations
     new_centroids = list()
 
+    # For each cluster class found
+    # in clusters, find the mean of the
+    # poitns that were assigned to that cluster
     for cluster in clusters.index:
         value_frame = clusters_and_iris.loc[clusters_and_iris['closest_cluster'] == cluster]
         value_frame = value_frame.drop(columns=['closest_cluster'])
+        # Enforce that the mean is taken row-wise 
+        # with parameter axis set to 'index'
         centroid = value_frame.mean(axis='index')
+        # Add the point to the new centroids list
         new_centroids.append(centroid.values)
 
-    # Return centroids
+    # Return new centroids
     return new_centroids
 
 
-if __name__ == "__main__":
+def main():
     # Location of data file
     data_location = 'iris.arff'
     # Load data in to pandas dataframe
@@ -95,24 +100,43 @@ if __name__ == "__main__":
     epsilon = float(sys.argv[2])
     # Number of iterations user input
     number_of_iterations = int(sys.argv[3])
-
+    # Membership change initialization
+    # for comparison in while loop 
     membership_change = float('inf')
+    # Create a placeholder list 
+    # for the number of clusters to be 
+    # used
+    clusters = k * [0]
+    # Placeholder objects for the first k centroids of
+    # clusters to be compared in the epsilon check
+    # This uses a list comprehension i.e., 
+    # 4 * [float('inf')] will produce a 2D array
+    # with each element being 4 infinity elements 
+    # Sample K centroids at random from the dataframe
+    # old_centers = [data.shape[1] * [float('inf')] for cluster in clusters]
+    old_centers = data.sample(n=k).values
 
-    dimensions = k * [0]
-
-    # Placeholder objects for the first k centroids to be compared
-    # to in the epsilon check
-    old_centers = [data.shape[1] * [float('inf')] for dimension in dimensions]
-    # Instantiate while loop break
-    # counter
+    # Instantiate while loop break counter
     x = 0
+    # While the number of iterations has not been met
+    # AND the membership change is greater than epsilon,
+    # i.e., the change in clustering is minimal
+    # run the k-means algorithm
+    start_time = time.time()
     while(x < number_of_iterations and membership_change > epsilon):
-        start_time = time.time()
-        new_centers = k_means(k, data, epsilon)
-        membership_change = np.sum((np.array(old_centers)-np.array(new_centers))**2)
+        new_centers = k_means(k, data, old_centers)
+        new_centers =  np.array(new_centers)
+        old_centers = np.array(old_centers)
+        value = new_centers - old_centers
+        membership_change = np.sum((value)**2)
         old_centers = new_centers
+        print("Iteration: {}".format(x))
+        
         print(membership_change)
-        time_taken = time.time() - start_time
+        
         x += 1
+    time_taken = time.time() - start_time
+    print("Total time taken: {}".format(time_taken) + "s")
 
-    print("Time taken: {}".format(time_taken) + "s")
+if __name__ == "__main__":
+    main()
