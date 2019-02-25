@@ -6,6 +6,8 @@ import time
 import numpy as np
 
 # Take distance measure of each transaction
+
+
 def take_distance(centroid, record):
     # Instantite distance placeholder object
     # to store results of euclidean distance
@@ -20,9 +22,10 @@ def take_distance(centroid, record):
     # Return a series to be stored in distances frame
     return distance
 
-def update_step(dataset):
 
+def update_step(dataset):
     return dataset
+
 
 def k_means(k, dataset, epsilon):
     # Sample K centroids at random from the dataframe
@@ -46,13 +49,15 @@ def k_means(k, dataset, epsilon):
 
     # Find the minimum distance value in the row
     # and store as a series in the dataframe
-    distances_to_centroids['closest_cluster'] = distances_to_centroids.idxmin(axis=1)
-    
-    # Concatenate the dataset with the original set so that 
+    distances_to_centroids['closest_cluster'] = distances_to_centroids.idxmin(
+        axis=1)
+
+    # Concatenate the dataset with the original set so that
     # we can keep keep track of the original points
     # and their cluster assignment
-    clusters_and_iris = pd.concat([distances_to_centroids, dataset], axis=1, sort=False)
-    
+    clusters_and_iris = pd.concat(
+        [distances_to_centroids, dataset], axis=1, sort=False)
+
     # Get headers of concatenated dataset
     headers = clusters_and_iris.columns
 
@@ -61,22 +66,22 @@ def k_means(k, dataset, epsilon):
     for header in headers:
         if 'Cluster_' not in header:
             new_headers.append(header)
-    
+
     clusters_and_iris = pd.DataFrame(clusters_and_iris, columns=new_headers)
 
-    clusters = clusters_and_iris['closest_cluster'].value_counts().sort_index(axis=0)
+    clusters = clusters_and_iris['closest_cluster'].value_counts(
+    ).sort_index(axis=0)
+
+    new_centroids = list()
 
     for cluster in clusters.index:
         value_frame = clusters_and_iris.loc[clusters_and_iris['closest_cluster'] == cluster]
         value_frame = value_frame.drop(columns=['closest_cluster'])
-        new_centroid = value_frame.mean(axis=0)
-        new_centroid = new_centroid.values
-        print("New Centroid for Cluster: " + cluster, new_centroid)
+        centroid = value_frame.mean(axis='index')
+        new_centroids.append(centroid.values)
 
-    centroids = 0
-    print("Finished!")
     # Return centroids
-    return new_centroid
+    return new_centroids
 
 
 if __name__ == "__main__":
@@ -90,21 +95,23 @@ if __name__ == "__main__":
     epsilon = float(sys.argv[2])
     # Number of iterations user input
     number_of_iterations = int(sys.argv[3])
-        
+
     membership_change = float('inf')
-    
+
     dimensions = k * [0]
 
     # Placeholder objects for the first k centroids to be compared
     # to in the epsilon check
-    centers = [data.shape[1] * [float('inf')] for dimension in dimensions]
+    old_centers = [data.shape[1] * [float('inf')] for dimension in dimensions]
     # Instantiate while loop break
-    # counter 
+    # counter
     x = 0
     while(x < number_of_iterations and membership_change > epsilon):
         start_time = time.time()
-        centers = k_means(k, data, epsilon)
-        # membership_change = check(centers, )
+        new_centers = k_means(k, data, epsilon)
+        membership_change = np.sum((np.array(old_centers)-np.array(new_centers))**2)
+        old_centers = new_centers
+        print(membership_change)
         time_taken = time.time() - start_time
         x += 1
 
