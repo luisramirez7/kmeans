@@ -1,6 +1,4 @@
-# Assignment 3 - Data Mining
-### Jasmine Boyer and Luis Ramirez
-
+# Data Mining - A KMeans implementation from Scratch (no Sci-kit)
 # Getting Started
 * Ensure you are have Python3 installed with libraries scipy, numpy, and pandas.
 
